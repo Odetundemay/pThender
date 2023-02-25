@@ -178,3 +178,40 @@ const styles = StyleSheet.create({
 });
 
 export default SignUpPage;
+
+
+
+
+import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import {
+  Feather,
+  SimpleLineIcons,
+  AntDesign,
+  Ionicons,
+} from "@expo/vector-icons";
+import { useLayoutEffect } from "react";
+
+const PeerScreenwithNoPeers = ({ navigation }) => {
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: false,
+    });
+  }, []);
+  return (
+    <SafeAreaView>
+      <Text>Thender</Text>
+                <TouchableOpacity>
+            <AntDesign name="search1" size={24} color="#0011FF" />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <SimpleLineIcons
+              name="options-vertical"
+              size={24}
+              color="#0011FF"
+            />
+          </TouchableOpacity>
+    </SafeAreaView>
+  );
+};
+
+export default PeerScreenwithNoPeers;
