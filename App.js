@@ -1,12 +1,34 @@
-import { StatusBar } from "expo-status-bar";
-import { Image, SafeAreaView, StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import SignUpScreen from "./screens/SignUpScreen";
 import LogInScreen from "./screens/LogInScreen";
 import PeerScreenwithNoPeers from "./screens/PeerScreenwithNoPeers";
+import ProgressScreen from "./screens/ProgressScreen";
+import RequestsScreen from "./screens/RequestsScreen";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+
+const AppTab = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={PeerScreenwithNoPeers}
+        screenOptions={{
+          headerShown: false,
+        }}
+      />
+      <Tab.Screen name="Progress" component={ProgressScreen} />
+      <Tab.Screen name="Requests" component={RequestsScreen} />
+    </Tab.Navigator>
+  );
+};
 
 export default function App() {
   return (
@@ -14,7 +36,7 @@ export default function App() {
       <Stack.Navigator>
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="LogIn" component={LogInScreen} />
-        <Stack.Screen name="Home" component={PeerScreenwithNoPeers} />
+        <Stack.Screen name="Tab" component={AppTab} />
       </Stack.Navigator>
     </NavigationContainer>
   );

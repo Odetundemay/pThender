@@ -109,7 +109,7 @@ const LogInScreen = ({ navigation }) => {
       <CustomButton
         title="Log In"
         color="blue"
-        onPress={() => navigation.navigate("Home")}
+        onPress={() => navigation.replace("Tab")}
       />
     </KeyboardAvoidingView>
   );
