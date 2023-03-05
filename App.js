@@ -6,8 +6,8 @@ import ProgressScreen from "./screens/ProgressScreen";
 import RequestsScreen from "./screens/RequestsScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PeerScreens from "./screens/PeerScreens";
-
-import * as Font from "expo-font";
+import { useEffect } from "react";
+import { loadFonts } from "./components/fonts";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -27,6 +27,13 @@ const AppTab = () => {
 };
 
 export default function App() {
+  useEffect(() => {
+    async function loadFontsAsync() {
+      loadFonts;
+    }
+    loadFontsAsync;
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator>

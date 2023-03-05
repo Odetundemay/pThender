@@ -1,4 +1,4 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,8 +16,20 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
+import { loadFonts } from "../components/fonts";
 
 const SignUpScreen = ({ navigation }) => {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  loadFonts()
+    .then(([loaded, error]) => {
+      if (!loaded) {
+        console.log(error);
+      } else {
+        setFontsLoaded(true);
+      }
+    })
+    .catch((error) => console.log(error));
   const handlePress = () => {
     // Handle button press here
   };
@@ -63,7 +75,12 @@ const SignUpScreen = ({ navigation }) => {
               }}
             >
               <Text
-                style={{ color: "#0011FF", textAlign: "center", fontSize: 18 }}
+                style={{
+                  color: "#0011FF",
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontFamily: "comfortaa-bold",
+                }}
               >
                 Log In
               </Text>
@@ -75,6 +92,11 @@ const SignUpScreen = ({ navigation }) => {
   }, []);
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
+
+  if (!fontsLoaded) {
+    return null; // or a loading indicator
+  }
+
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
@@ -96,7 +118,12 @@ const SignUpScreen = ({ navigation }) => {
         </View>
         <View className="flex-row items-center mt-3 mb-7">
           <View className="bg-blue-900 w-1 h-9 mr-1 "></View>
-          <Text className="text-3xl">Sign Up</Text>
+          <Text
+            style={{ fontFamily: "comfortaa-regular" }}
+            className="text-3xl"
+          >
+            Sign Up
+          </Text>
         </View>
 
         {/* input container   */}

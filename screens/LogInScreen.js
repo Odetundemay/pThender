@@ -1,3 +1,4 @@
+import { useState, useEffect, useLayoutEffect } from "react";
 import {
   View,
   Text,
@@ -14,9 +15,23 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
-import { useLayoutEffect } from "react";
+import { loadFonts } from "../components/fonts";
 
 const LogInScreen = ({ navigation }) => {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadFonts()
+      .then(([loaded, error]) => {
+        if (!loaded) {
+          console.log(error);
+          return null;
+        }
+        setFontsLoaded(true);
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       // headerShown: false,
@@ -58,7 +73,12 @@ const LogInScreen = ({ navigation }) => {
               }}
             >
               <Text
-                style={{ color: "#0011FF", textAlign: "center", fontSize: 18 }}
+                style={{
+                  color: "#0011FF",
+                  textAlign: "center",
+                  fontSize: 18,
+                  fontFamily: "comfortaa-bold",
+                }}
               >
                 Sign Up
               </Text>
@@ -70,6 +90,10 @@ const LogInScreen = ({ navigation }) => {
   }, []);
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
+
+  if (!fontsLoaded) {
+    return null;
+  }
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -85,7 +109,9 @@ const LogInScreen = ({ navigation }) => {
       </View>
       <View className="flex-row items-center mt-3 mb-7">
         <View className="bg-blue-900 w-1 h-9 mr-1 "></View>
-        <Text className="text-3xl">Log In</Text>
+        <Text style={{ fontFamily: "comfortaa-regular" }} className="text-3xl">
+          Log In
+        </Text>
       </View>
 
       {/* input container   */}

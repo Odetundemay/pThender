@@ -50,5 +50,3 @@ const PeerScreens = () => {
 };
 
 export default PeerScreens;
-
-const styles = StyleSheet.create({});
