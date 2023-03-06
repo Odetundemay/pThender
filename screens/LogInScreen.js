@@ -15,22 +15,22 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
-import { loadFonts } from "../components/fonts";
+// import { loadFonts } from "../components/fonts";
 
 const LogInScreen = ({ navigation }) => {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  // const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  useEffect(() => {
-    loadFonts()
-      .then(([loaded, error]) => {
-        if (!loaded) {
-          console.log(error);
-          return null;
-        }
-        setFontsLoaded(true);
-      })
-      .catch((error) => console.log(error));
-  }, []);
+  // useEffect(() => {
+  //   loadFonts()
+  //     .then(([loaded, error]) => {
+  //       if (!loaded) {
+  //         console.log(error);
+  //         return null;
+  //       }
+  //       setFontsLoaded(true);
+  //     })
+  //     .catch((error) => console.log(error));
+  // }, []);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -77,7 +77,7 @@ const LogInScreen = ({ navigation }) => {
                   color: "#0011FF",
                   textAlign: "center",
                   fontSize: 18,
-                  fontFamily: "comfortaa-bold",
+                  // fontFamily: "comfortaa-bold",
                 }}
               >
                 Sign Up
@@ -91,9 +91,9 @@ const LogInScreen = ({ navigation }) => {
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -109,7 +109,10 @@ const LogInScreen = ({ navigation }) => {
       </View>
       <View className="flex-row items-center mt-3 mb-7">
         <View className="bg-blue-900 w-1 h-9 mr-1 "></View>
-        <Text style={{ fontFamily: "comfortaa-regular" }} className="text-3xl">
+        <Text
+          // style={{ fontFamily: "comfortaa-regular" }}
+          className="text-3xl"
+        >
           Log In
         </Text>
       </View>

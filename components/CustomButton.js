@@ -4,23 +4,23 @@ import React from "react";
 import { loadFonts } from "./fonts";
 
 const CustomButton = ({ onPress, title, color }) => {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
+  // const [fontsLoaded, setFontsLoaded] = useState(false);
 
-  useEffect(() => {
-    loadFonts()
-      .then(([loaded, error]) => {
-        if (!loaded) {
-          console.log(error);
-          return null;
-        }
-        setFontsLoaded(true);
-      })
-      .catch((error) => console.log(error));
-  }, []);
+  // useEffect(() => {
+  //   loadFonts()
+  //     .then(([loaded, error]) => {
+  //       if (!loaded) {
+  //         console.log(error);
+  //         return null;
+  //       }
+  //       setFontsLoaded(true);
+  //     })
+  //     .catch((error) => console.log(error));
+  // }, []);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
 
   return (
     <View style={styles.buttonContainer}>
@@ -60,6 +60,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
-    fontFamily: "comfortaa-regular",
+    // fontFamily: "comfortaa-regular",
   },
 });

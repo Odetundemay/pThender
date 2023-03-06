@@ -215,3 +215,119 @@ const PeerScreenwithNoPeers = ({ navigation }) => {
 };
 
 export default PeerScreenwithNoPeers;
+
+
+
+
+
+
+import { useCallback } from "react";
+import { Text, View, StyleSheet } from "react-native";
+// import { useFonts } from "expo-font";
+import * as Fonts from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
+
+export default function App() {
+  const [fontsLoaded] = useFonts({
+    "Inter-Black": require("./assets/fonts/Comfortaa-Light.ttf"),
+  });
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
+
+import React from 'react';
+import { FlatList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+
+const DATA = [
+  {
+    id: '1',
+    name: 'John Doe',
+    profileImage: 'https://randomuser.me/api/portraits/men/1.jpg',
+  },
+  {
+    id: '2',
+    name: 'Jane Doe',
+    profileImage: 'https://randomuser.me/api/portraits/women/1.jpg',
+  },
+  {
+    id: '3',
+    name: 'Bob Smith',
+    profileImage: 'https://randomuser.me/api/portraits/men/2.jpg',
+  },
+  {
+    id: '4',
+    name: 'Alice Johnson',
+    profileImage: 'https://randomuser.me/api/portraits/women/2.jpg',
+  },
+];
+
+const Item = ({ item }) => (
+  <View style={styles.item}>
+    <Image style={styles.profileImage} source={{ uri: item.profileImage }} />
+    <Text style={styles.name}>{item.name}</Text>
+    <TouchableOpacity style={styles.sendButton}>
+      <Text style={styles.sendButtonText}>Send</Text>
+    </TouchableOpacity>
+  </View>
+);
+
+const App = () => {
+  const renderItem = ({ item }) => <Item item={item} />;
+  
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={DATA}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 50,
+  },
+  item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
+  profileImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 16,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  sendButton: {
+    backgroundColor: '#008CBA',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    marginLeft: 'auto',
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+});
+
+export default App;
