@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useContext, useState } from "react";
 import {
   View,
   Text,
@@ -16,9 +16,40 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
-// import { loadFonts } from "../components/fonts";
+import { AuthContext } from "../context/AuthContext";
 
 const SignUpScreen = ({ navigation }) => {
+  const [username, setUsername] = useState("");
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { register } = useContext(AuthContext);
+
+  const onChangeuserNameHandler = (username) => {
+    setUsername(username);
+  };
+
+  const onChangeFirstNameHandler = (first_name) => {
+    setFirstName(first_name);
+  };
+  const onChangeLastNameHandler = (last_name) => {
+    setLastName(last_name);
+  };
+
+  const onChangeEmailHandler = (email) => {
+    setEmail(email);
+  };
+
+  const onChangePassword = (password) => {
+    setPassword(password);
+  };
+
+  const handleSignUp = () => {
+    register(username, email, first_name, last_name, password);
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       // headerShown: false,
@@ -94,6 +125,7 @@ const SignUpScreen = ({ navigation }) => {
         behavior="padding"
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
+        {/* <Text>{register}</Text> */}
         <View style={styles.imageContainer}>
           <Image
             source={require("../assets/signupillustrate.png")}
@@ -111,6 +143,12 @@ const SignUpScreen = ({ navigation }) => {
           </Text>
         </View>
 
+        {/* Show error message to user */}
+        {/* {errorMessage ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{errorMessage}</Text>
+          </View>
+        ) : null} */}
         {/* input container   */}
         <View style={styles.inputContainer}>
           <AntDesign
@@ -119,7 +157,27 @@ const SignUpScreen = ({ navigation }) => {
             color="black"
             style={styles.icon}
           />
-          <TextInput placeholder="First Name" style={styles.input} />
+          <TextInput
+            style={styles.input}
+            value={username}
+            placeholder="Enter username"
+            onChangeText={onChangeuserNameHandler}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <AntDesign
+            name="idcard"
+            size={24}
+            color="black"
+            style={styles.icon}
+          />
+          <TextInput
+            placeholder="First Name"
+            style={styles.input}
+            value={first_name}
+            onChangeText={onChangeFirstNameHandler}
+          />
         </View>
 
         <View style={styles.inputContainer}>
@@ -130,30 +188,34 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.icon}
           />
 
-          <TextInput placeholder="Last Name" style={styles.input} />
+          <TextInput
+            placeholder="Last Name"
+            style={styles.input}
+            value={last_name}
+            onChangeText={onChangeLastNameHandler}
+          />
         </View>
         <View style={styles.inputContainer}>
           <Ionicons name="md-at" size={24} color="black" />
-
           <TextInput
-            placeholder="Email"
+            placeholder="Enter  Email"
             style={styles.input}
+            value={email}
             keyboardType="email-address"
+            onChangeText={onChangeEmailHandler}
           />
         </View>
         <View style={styles.inputContainer}>
           <SimpleLineIcons name="lock" size={24} color="black" />
           <TextInput
-            placeholder="Password"
+            placeholder="password"
             style={styles.input}
+            value={password}
+            onChangeText={onChangePassword}
             secureTextEntry={true}
           />
         </View>
-        <CustomButton
-          title="Sign Up"
-          color="blue"
-          onPress={() => navigation.replace("LogIn")}
-        />
+        <CustomButton title="Sign Up" color="blue" onPress={handleSignUp} />
       </KeyboardAvoidingView>
     </ScrollView>
   );
@@ -203,5 +265,18 @@ const styles = StyleSheet.create({
     // paddingBottom: 8,
     marginBottom: 20,
     fontSize: 20,
+  },
+  errorContainer: {
+    backgroundColor: "red",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    marginBottom: 8,
+  },
+  errorText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });

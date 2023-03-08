@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   StyleSheet,
   Image,
+  Alert,
   TextInput,
 } from "react-native";
 import {
@@ -15,22 +16,10 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
-// import { loadFonts } from "../components/fonts";
 
 const LogInScreen = ({ navigation }) => {
-  // const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  // useEffect(() => {
-  //   loadFonts()
-  //     .then(([loaded, error]) => {
-  //       if (!loaded) {
-  //         console.log(error);
-  //         return null;
-  //       }
-  //       setFontsLoaded(true);
-  //     })
-  //     .catch((error) => console.log(error));
-  // }, []);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -91,9 +80,46 @@ const LogInScreen = ({ navigation }) => {
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
 
-  // if (!fontsLoaded) {
-  //   return null;
-  // }
+  const handleLogIn = () => {
+    if (!username || !password) {
+      Alert.alert("Error", "Please enter both username and password.");
+      return;
+    }
+    if (password.length < 8) {
+      Alert.alert("Error", "Password length is less than 8");
+      return;
+    }
+
+    const requestOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    fetch("https://thender.onrender.com/account/login/", requestOptions)
+      .then((response) => {
+        console.log(response.status);
+        if (!response.ok) {
+          throw new Error(
+            "Login failed check password or username and try again"
+          );
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Handle successful login, such as storing the user token in the app state
+        navigation.replace("PeerScreen", { userData: data });
+        console.log(data);
+      })
+      .catch((error) => {
+        Alert.alert("Error", error.message);
+      });
+  };
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -122,24 +148,24 @@ const LogInScreen = ({ navigation }) => {
         <Ionicons name="md-at" size={24} color="black" />
 
         <TextInput
-          placeholder="Email"
+          placeholder="Username"
           style={styles.input}
-          keyboardType="email-address"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
         />
       </View>
       <View style={styles.inputContainer}>
         <SimpleLineIcons name="lock" size={24} color="black" />
         <TextInput
           placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
           style={styles.input}
           secureTextEntry={true}
         />
       </View>
-      <CustomButton
-        title="Log In"
-        color="blue"
-        onPress={() => navigation.replace("Thender")}
-      />
+      <CustomButton title="Log In" color="blue" onPress={handleLogIn} />
     </KeyboardAvoidingView>
   );
 };
