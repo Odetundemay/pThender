@@ -17,6 +17,7 @@ import {
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
 import { AuthContext } from "../context/AuthContext";
+import Spinner from "react-native-loading-spinner-overlay/lib";
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -25,7 +26,7 @@ const SignUpScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { register } = useContext(AuthContext);
+  const { isLoading, register } = useContext(AuthContext);
 
   const onChangeuserNameHandler = (username) => {
     setUsername(username);
@@ -109,10 +110,6 @@ const SignUpScreen = ({ navigation }) => {
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
 
-  // if (!fontsLoaded) {
-  //   return null; // or a loading indicator
-  // }
-
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1 }}
@@ -125,7 +122,7 @@ const SignUpScreen = ({ navigation }) => {
         behavior="padding"
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        {/* <Text>{register}</Text> */}
+        <Spinner visible={isLoading} />
         <View style={styles.imageContainer}>
           <Image
             source={require("../assets/signupillustrate.png")}

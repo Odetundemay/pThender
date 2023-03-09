@@ -1,14 +1,39 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import Spinner from "react-native-loading-spinner-overlay/lib";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AuthContext } from "../context/AuthContext";
 
-const ProgressScreen = () => {
+const ProgressScreen = ({ navigation }) => {
+  const { userInfo, isLoading, logout } = useContext(AuthContext);
+
+  // Call the logout function when the user logs out
+  const handleLogout = async () => {
+    await logout();
+    // setIsLoading(false);
+    // Redirect the user to the login screen or home screen
+    // navigation.navigate("Thender", { screen: "LogIn" });
+  };
+
   return (
-    <View>
-      <Text>ProgressScreen</Text>
+    <View style={styles.container}>
+      <Spinner visible={isLoading} />
+      <Text style={styles.welcome}>Welcome {userInfo.access}</Text>
+      <Button title="Logout" color="red" onPress={handleLogout} />
     </View>
   );
 };
 
-export default ProgressScreen;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  welcome: {
+    fontSize: 18,
+    marginBottom: 8,
+  },
+});
 
-const styles = StyleSheet.create({});
+export default ProgressScreen;

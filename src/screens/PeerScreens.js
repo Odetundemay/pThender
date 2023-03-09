@@ -1,170 +1,67 @@
+import React, { useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
-  Image,
-  FlatList,
+  Text,
+  TextInput,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
-import { useState, useEffect } from "react";
-import { RFPercentage } from "react-native-responsive-fontsize";
-import { loadFonts } from "../components/fonts";
 
-const DATA = [
-  {
-    id: "1",
-    name: "John Doe",
-    profileImage: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: "2",
-    name: "Jane Doe",
-    profileImage: "https://randomuser.me/api/portraits/women/1.jpg",
-  },
-  {
-    id: "3",
-    name: "Bob Smith",
-    profileImage: "https://randomuser.me/api/portraits/men/2.jpg",
-  },
-  {
-    id: "4",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "5",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "6",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "7",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "8",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "9",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "10",
-    name: "Alice Johnson",
-    profileImage: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-];
+const yourAccessToken =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MTM2NDYyLCJpYXQiOjE2NzgxMjU2NjIsImp0aSI6IjQyZTJmZWUwMjJmNDQzMjFiYmNmZTkxM2RhYjkwNzQ0IiwidXNlcl9pZCI6ImI4NmVlYWMxLWYwNDctNGU4OS04OWM3LTY4OTU1MDVmZmE2MCJ9.Z4XFTGfnRk8gqCO-vElCu6eoxz3KoMO4LwVXroxj3nk";
 
-const Item = ({ item }) => (
-  <View style={styles.item}>
-    <Image style={styles.profileImage} source={{ uri: item.profileImage }} />
-    <Text style={styles.name}>{item.name}</Text>
-    <TouchableOpacity style={styles.sendButton}>
-      <Text style={styles.sendButtonText}>Send</Text>
-    </TouchableOpacity>
-  </View>
-);
+const PeerScreens = () => {
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [results, setResults] = useState([]);
 
-//A component to render when there are no available peers
-const NoAvailablePeers = () => {
-  return (
-    <View className="justify-center mx-3">
-      <View className="relative h-1/2">
-        <Image
-          source={require("../assets/nopeers.png")}
-          className="absolute w-full h-full justify-center "
-        />
-      </View>
-      <View className="mt-5">
-        <Text className="text-center text-3xl">No Peers!!!!</Text>
-        <Text
-          style={{
-            fontSize: RFPercentage(2),
-            textAlign: "center",
-            marginTop: 10,
-          }}
-        >
-          We couldn't find anybody peers with on your {"\n"} network
-        </Text>
-      </View>
+  const handleSearch = () => {
+    const url = `https://thender.onrender.com/search/?q=${query}&p=${page}&s=1`;
+
+    const requestOptions = {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${yourAccessToken}`,
+        "Content-Type": "application/json",
+      },
+    };
+
+    fetch(url, requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setResults(data);
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={{ padding: 10 }}>
+      <Text style={{ fontSize: 18 }}>{item.username}</Text>
     </View>
   );
-};
 
-//A component to render when there are available peers
-const AvailablePeers = () => {
-  const renderItem = ({ item }) => <Item item={item} />;
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, padding: 20 }}>
+      <TextInput
+        placeholder="Search for user"
+        style={{ padding: 10, borderColor: "black", borderWidth: 1 }}
+        onChangeText={(text) => setQuery(text)}
+      />
+      <TouchableOpacity
+        onPress={handleSearch}
+        style={{ backgroundColor: "blue", padding: 10, marginTop: 10 }}
+      >
+        <Text style={{ color: "white", textAlign: "center" }}>Search</Text>
+      </TouchableOpacity>
       <FlatList
-        data={DATA}
+        data={results}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
+        style={{ marginTop: 20 }}
       />
     </View>
   );
 };
-
-const PeerScreens = () => {
-  const [peersAvailable, setPeersAvailable] = useState(false);
-
-  // Call an API or use a state management library to get the number of available peers
-  const numPeers = 1; // Replace with actual number of peers
-
-  // Set the state of peersAvailable based on the number of peers
-  useEffect(() => {
-    setPeersAvailable(numPeers > 0);
-  }, [numPeers]);
-
-  return peersAvailable ? <AvailablePeers /> : <NoAvailablePeers />;
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    // marginTop: 50,
-  },
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderBottomColor: "#808080",
-    borderBottomWidth: 1,
-    padding: 10,
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  sendButton: {
-    // backgroundColor: "#008CBA",
-    borderColor: "#0011FF",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 20,
-    marginLeft: "auto",
-  },
-  sendButtonText: {
-    color: "#0011FF",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-});
 
 export default PeerScreens;

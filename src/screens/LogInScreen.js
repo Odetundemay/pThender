@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -16,10 +16,14 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
+import { AuthContext } from "../context/AuthContext";
+import Spinner from "react-native-loading-spinner-overlay/lib";
 
 const LogInScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const { isLoading, login } = useContext(AuthContext);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -80,52 +84,13 @@ const LogInScreen = ({ navigation }) => {
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
 
-  const handleLogIn = () => {
-    if (!username || !password) {
-      Alert.alert("Error", "Please enter both username and password.");
-      return;
-    }
-    if (password.length < 8) {
-      Alert.alert("Error", "Password length is less than 8");
-      return;
-    }
-
-    const requestOptions = {
-      method: "POST",
-      body: JSON.stringify({
-        username: username,
-        password: password,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-
-    fetch("https://thender.onrender.com/account/login/", requestOptions)
-      .then((response) => {
-        console.log(response.status);
-        if (!response.ok) {
-          throw new Error(
-            "Login failed check password or username and try again"
-          );
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Handle successful login, such as storing the user token in the app state
-        navigation.replace("PeerScreen", { userData: data });
-        console.log(data);
-      })
-      .catch((error) => {
-        Alert.alert("Error", error.message);
-      });
-  };
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior="padding"
       keyboardVerticalOffset={keyboardVerticalOffset}
     >
+      <Spinner visible={isLoading} />
       <View style={styles.imageContainer}>
         <Image
           source={require("../assets/loginillustrate.png")}
@@ -165,7 +130,13 @@ const LogInScreen = ({ navigation }) => {
           secureTextEntry={true}
         />
       </View>
-      <CustomButton title="Log In" color="blue" onPress={handleLogIn} />
+      <CustomButton
+        title="Log In"
+        color="blue"
+        onPress={() => {
+          login(username, password);
+        }}
+      />
     </KeyboardAvoidingView>
   );
 };
