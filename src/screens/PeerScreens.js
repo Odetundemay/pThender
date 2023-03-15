@@ -67,15 +67,20 @@ const PeerScreens = () => {
 
   const handleSend = async (id) => {
     try {
+      const headers = {
+        Authorization: `Bearer ${access}`,
+        "Content-Type": "application/json",
+      };
+
+      const data = {
+        user: id,
+      };
+
       const response = await axios.post(
         `https://thender.onrender.com/peer/request/`,
+        data,
         {
-          id: id,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${access}`,
-          },
+          headers,
         }
       );
       console.log(response.data);
