@@ -7,7 +7,7 @@ import { BASE_URL } from "../config";
 export const AuthContext = createContext();
 
 const api = axios.create({
-  baseURL: "https://thender.onrender.com/account",
+  baseURL: BASE_URL,
 });
 
 api.interceptors.response.use(
@@ -22,13 +22,22 @@ api.interceptors.response.use(
   }
 );
 
-var raw =
-  '{\n    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTY3ODY1MTYwMywiaWF0IjoxNjc4MzA2MDAzLCJqdGkiOiI1NjdhOTUxZjBiN2Q0NjlhYTJiNWUzZDc3OGMwZjZmNCIsInVzZXJfaWQiOiJiZDU0Y2QxYS1iYTM2LTRkZGYtOGE2My1iZGQyYjZhYjgxYWYifQ.YgIlN-TsdXUeqOaj5wDGqst8sBbGBjLgEE9OQOt4tCc"\n}';
-
 export const AuthProvider = ({ children }) => {
   const [userInfo, setUserInfo] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [splashLoading, setSplashLoading] = useState(false);
+  const [splashLoading, setSplashLoading] = useState(true);
+
+  const handleApiError = (error) => {
+    console.error(error);
+
+    let errorMessage = "An error occurred";
+    if (error.response) {
+      errorMessage = error.response.data.message || error.response.statusText;
+    } else if (error.request) {
+      errorMessage = "No response from server, please try again later.";
+    }
+    Alert.alert(errorMessage);
+  };
 
   const register = async (username, email, first_name, last_name, password) => {
     setIsLoading(true);
@@ -40,33 +49,14 @@ export const AuthProvider = ({ children }) => {
         email,
         password,
       });
-      let userInfo = response.data;
-      console.log(response.status);
-      console.log(response.headers);
-      console.log(response.data);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
-      setUserInfo(userInfo); // Set the userInfo state here
-      setIsLoading(false);
+
+      const { data } = response;
+      await AsyncStorage.setItem("userInfo", JSON.stringify(data));
+      setUserInfo(data);
     } catch (error) {
-      console.error(error);
+      handleApiError(error);
+    } finally {
       setIsLoading(false);
-      if (error.response) {
-        // Request was made and server responded with a status code
-        console.log(error.response.status);
-        console.log(error.response.data);
-        // Display a meaningful error message to the user
-        Alert.alert(error.response.data.message);
-      } else if (error.request) {
-        // Request was made but no response was received
-        console.log(error.request);
-        // Display a meaningful error message to the user
-        Alert.alert("No response from server, please try again later.");
-      } else {
-        // Something else happened in making the request
-        console.log("Error", error.message);
-        // Display a meaningful error message to the user
-        Alert.alert("An error occurred, please try again later.");
-      }
     }
   };
 
@@ -77,84 +67,55 @@ export const AuthProvider = ({ children }) => {
         username,
         password,
       });
-      let userInfo = response.data;
-      console.log(response.status);
-      console.log(response.headers);
-      console.log(response.data);
-      await AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
-      setUserInfo(userInfo); // Set the userInfo state here
-      setIsLoading(false);
+
+      const { data } = response;
+      await AsyncStorage.multiSet([
+        ["access", data.access],
+        ["refresh", data.refresh],
+        ["userInfo", JSON.stringify(data)],
+      ]);
+
+      setUserInfo(data);
     } catch (error) {
-      console.error(error);
+      handleApiError(error);
+    } finally {
       setIsLoading(false);
-      if (error.response) {
-        // Request was made and server responded with a status code
-        console.log(error.response.status);
-        console.log(error.response.data);
-        // Display a meaningful error message to the user
-        Alert.alert(error.response.data.message);
-      } else if (error.request) {
-        // Request was made but no response was received
-        console.log(error.request);
-        // Display a meaningful error message to the user
-        Alert.alert("No response from server, please try again later.");
-      } else {
-        // Something else happened in making the request
-        console.log("Error", error.message);
-        // Display a meaningful error message to the user
-        Alert.alert("An error occurred, please try again later.");
-      }
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
     setIsLoading(true);
 
     const refreshToken = userInfo.refresh;
-
-    const requestOptions = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${refreshToken}`,
-      },
-      body: JSON.stringify({ refresh: refreshToken }),
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${refreshToken}`,
     };
+    const data = { refresh: refreshToken };
 
-    fetch("https://thender.onrender.com/account/logout/", requestOptions)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Logout failed");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log(data);
-        AsyncStorage.removeItem("userInfo");
-        setUserInfo({});
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.log(`Logout error: ${error}`);
-        setIsLoading(false);
-      });
+    try {
+      await api.post("/logout/", data, { headers });
+      await AsyncStorage.removeItem("userInfo");
+      setUserInfo({});
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const isLoggedIn = async () => {
     try {
-      setSplashLoading(true);
+      const userInfoString = await AsyncStorage.getItem("userInfo");
+      const userData = JSON.parse(userInfoString);
 
-      let userInfo = await AsyncStorage.getItem("userInfo");
-      userInfo = JSON.parse(userInfo);
-
-      if (userInfo) {
-        setUserInfo(userInfo);
+      if (userData) {
+        setUserInfo(userData);
       }
-
-      setSplashLoading(false);
     } catch (error) {
+      console.error(`is logged in error ${error}`);
+    } finally {
       setSplashLoading(false);
-      console.log(`is logged in error ${error}`);
     }
   };
 

@@ -15,7 +15,7 @@ const ProgressScreen = ({ navigation }) => {
     setIsLoggingOut(false);
     // setIsLoading(false);
     // Redirect the user to the login screen or home screen
-    navigation.navigate("Thender", { screen: "LogIn" });
+    // navigation.navigate("Thender", { screen: "LogIn" });
   };
 
   return (

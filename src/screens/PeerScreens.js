@@ -5,39 +5,109 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  Alert,
+  ActivityIndicator,
+  Image,
+  Button,
 } from "react-native";
-
-const yourAccessToken =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjc4MTM2NDYyLCJpYXQiOjE2NzgxMjU2NjIsImp0aSI6IjQyZTJmZWUwMjJmNDQzMjFiYmNmZTkxM2RhYjkwNzQ0IiwidXNlcl9pZCI6ImI4NmVlYWMxLWYwNDctNGU4OS04OWM3LTY4OTU1MDVmZmE2MCJ9.Z4XFTGfnRk8gqCO-vElCu6eoxz3KoMO4LwVXroxj3nk";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PeerScreens = () => {
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [access, setAccess] = useState(null);
 
-  const handleSearch = () => {
-    const url = `https://thender.onrender.com/search/?q=${query}&p=${page}&s=1`;
+  const handleSearch = async () => {
+    if (!query) {
+      Alert.alert("Please enter a username");
+      return;
+    }
 
-    const requestOptions = {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${yourAccessToken}`,
+    const url = `https://thender.onrender.com/search/?q=${query}`;
+
+    try {
+      setLoading(true);
+
+      const refresh = await AsyncStorage.getItem("refresh");
+      console.log("Refresh token retrieved successfully:", refresh);
+
+      // Get new access token from the server using refresh token
+      const response = await axios.post(
+        "https://thender.onrender.com/token/refresh/",
+        {
+          refresh,
+        }
+      );
+      const { access } = response.data;
+      console.log("New access token obtained:", access);
+      setAccess(access);
+
+      const headers = {
+        Authorization: `Bearer ${access}`,
         "Content-Type": "application/json",
-      },
-    };
+      };
 
-    fetch(url, requestOptions)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        setResults(data);
-      })
-      .catch((error) => console.log(error));
+      const response2 = await axios.get(url, { headers });
+      console.log("Search results:", response2.data);
+
+      if (response2.data.results.length === 0) {
+        Alert.alert("No available username. Please try again.");
+        setLoading(false);
+      } else {
+        setResults(response2.data.results);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const handleSend = async (id) => {
+    try {
+      const response = await axios.post(
+        `https://thender.onrender.com/peer/request/`,
+        {
+          id: id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${access}`,
+          },
+        }
+      );
+      console.log(response.data);
+      // handle success
+    } catch (error) {
+      console.error(error);
+      // handle error
+    }
   };
 
   const renderItem = ({ item }) => (
-    <View style={{ padding: 10 }}>
+    <View
+      style={{
+        padding: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+      }}
+    >
+      <Image source={item.profile_picture} resizeMode="contain" />
       <Text style={{ fontSize: 18 }}>{item.username}</Text>
+      <TouchableOpacity
+        onPress={() => handleSend(item.id)}
+        style={{
+          paddingVertical: 5,
+          paddingHorizontal: 15,
+          borderWidth: 1,
+          borderRadius: 10,
+          borderColor: "blue",
+        }}
+      >
+        <Text>Send</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -45,8 +115,10 @@ const PeerScreens = () => {
     <View style={{ flex: 1, padding: 20 }}>
       <TextInput
         placeholder="Search for user"
+        value={query}
         style={{ padding: 10, borderColor: "black", borderWidth: 1 }}
         onChangeText={(text) => setQuery(text)}
+        autoCapitalize="none"
       />
       <TouchableOpacity
         onPress={handleSearch}
@@ -54,12 +126,18 @@ const PeerScreens = () => {
       >
         <Text style={{ color: "white", textAlign: "center" }}>Search</Text>
       </TouchableOpacity>
-      <FlatList
-        data={results}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
-        style={{ marginTop: 20 }}
-      />
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <ActivityIndicator size="large" color="blue" />
+        </View>
+      ) : (
+        <FlatList
+          data={results}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id}
+          style={{ marginTop: 20 }}
+        />
+      )}
     </View>
   );
 };
