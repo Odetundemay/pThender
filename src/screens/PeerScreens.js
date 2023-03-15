@@ -66,40 +66,53 @@ const PeerScreens = () => {
   };
 
   const handleSend = async (id) => {
-    try {
-      const headers = {
-        Authorization: `Bearer ${access}`,
-        "Content-Type": "application/json",
-      };
+    const headers = {
+      Authorization: `Bearer ${access}`,
+      "Content-Type": "application/json",
+    };
 
-      const data = {
-        user: id,
-      };
+    const data = {
+      user: id,
+    };
 
-      const response = await axios.post(
-        `https://thender.onrender.com/peer/request/`,
-        data,
-        {
-          headers,
-        }
-      );
-      console.log(response.data);
-      // handle success
-    } catch (error) {
-      console.error(error);
-      // handle error
-    }
+    axios
+      .post(`https://thender.onrender.com/peer/request/`, data, { headers })
+      .then((response) => {
+        console.log(response.data);
+        // handle success
+      })
+      .catch((error) => {
+        // console.error(error.response.data);
+        const errorMessage = error.response.data.non_field_errors
+          ? error.response.data.non_field_errors
+          : "An error occurred";
+        Alert.alert("Error", JSON.stringify(errorMessage));
+        // handle error
+      });
   };
+
+  const defaultAvatar = require("../assets/defaultavatar.jpeg");
 
   const renderItem = ({ item }) => (
     <View
       style={{
-        padding: 10,
+        // padding: 10,
+        margin: 10,
         flexDirection: "row",
         justifyContent: "space-between",
+        alignItems: "center",
       }}
     >
-      <Image source={item.profile_picture} resizeMode="contain" />
+      <Image
+        source={item.profile_picture || defaultAvatar}
+        resizeMode="contain"
+        style={{
+          width: 50,
+          height: 50,
+          borderRadius: 25, // half of 50
+        }}
+      />
+
       <Text style={{ fontSize: 18 }}>{item.username}</Text>
       <TouchableOpacity
         onPress={() => handleSend(item.id)}
