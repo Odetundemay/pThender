@@ -10,11 +10,11 @@ import {
   Ionicons,
   SimpleLineIcons,
 } from "@expo/vector-icons";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
-const AppTab = () => {
+const AppTab = ({ navigation }) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -136,7 +136,20 @@ const AppTab = () => {
                   marginRight: 20,
                 }}
               >
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Options", "", [
+                      {
+                        text: "Settings",
+                        onPress: () => navigation.navigate("Settings"),
+                      },
+                      {
+                        text: "Exit",
+                        onPress: () => console.log("Exit pressed"),
+                      },
+                    ])
+                  }
+                >
                   <SimpleLineIcons
                     name="options-vertical"
                     size={24}
