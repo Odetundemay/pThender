@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   Alert,
   ActivityIndicator,
   Image,
-  Button,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,6 +17,34 @@ const PeerScreens = () => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
   const [access, setAccess] = useState(null);
+
+  useEffect(() => {
+    const getAccessToken = async () => {
+      try {
+        const refresh = await AsyncStorage.getItem("refresh");
+        console.log("Refresh token retrieved successfully:", refresh);
+
+        // Get new access token from the server using refresh token
+        const response = await axios.post(
+          "https://thender.onrender.com/token/refresh/",
+          {
+            refresh,
+          }
+        );
+        const { access } = response.data;
+        console.log("New access token obtained:", access);
+        setAccess(access);
+
+        // Save new access token to AsyncStorage
+        await AsyncStorage.setItem("access", access);
+        console.log("New access token saved to AsyncStorage");
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getAccessToken();
+  }, []);
 
   const handleSearch = async () => {
     if (!query) {
@@ -29,24 +56,6 @@ const PeerScreens = () => {
 
     try {
       setLoading(true);
-
-      const refresh = await AsyncStorage.getItem("refresh");
-      console.log("Refresh token retrieved successfully:", refresh);
-
-      // Get new access token from the server using refresh token
-      const response = await axios.post(
-        "https://thender.onrender.com/token/refresh/",
-        {
-          refresh,
-        }
-      );
-      const { access } = response.data;
-      console.log("New access token obtained:", access);
-      setAccess(access);
-
-      // Save new access token to AsyncStorage
-      await AsyncStorage.setItem("access", access);
-      console.log("New access token saved to AsyncStorage");
 
       const headers = {
         Authorization: `Bearer ${access}`,
@@ -80,7 +89,7 @@ const PeerScreens = () => {
     };
 
     axios
-      .post(`https://thender.onrender.com/peer/request/`, data, { headers })
+      .post("https://thender.onrender.com/peer/request/", data, { headers })
       .then((response) => {
         console.log(response.data);
         // handle success
