@@ -44,6 +44,10 @@ const PeerScreens = () => {
       console.log("New access token obtained:", access);
       setAccess(access);
 
+      // Save new access token to AsyncStorage
+      await AsyncStorage.setItem("access", access);
+      console.log("New access token saved to AsyncStorage");
+
       const headers = {
         Authorization: `Bearer ${access}`,
         "Content-Type": "application/json",
