@@ -9,6 +9,7 @@ import PeerScreens from "../screens/PeerScreens";
 import { AuthContext } from "../context/AuthContext";
 import AppTab from "../navigation/TabNavigator";
 import SplashScreen from "../screens/SplashScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,11 +26,14 @@ const Navigation = () => {
             options={{ headerShown: false }}
           />
         ) : userInfo.access ? (
-          <Stack.Screen
-            name="Thender"
-            component={AppTab}
-            options={{ headerShown: false }}
-          />
+          <>
+            <Stack.Screen
+              name="Thender"
+              component={AppTab}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+          </>
         ) : (
           <>
             <Stack.Screen name="SignUp" component={SignUpScreen} />

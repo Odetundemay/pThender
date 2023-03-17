@@ -62,7 +62,6 @@ const RequestsScreen = () => {
   const renderItem = ({ item }) => (
     <View
       style={{
-        // padding: 10,
         margin: 20,
         flexDirection: "row",
         justifyContent: "space-between",
@@ -96,7 +95,7 @@ const RequestsScreen = () => {
   );
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "white" }}>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
