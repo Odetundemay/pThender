@@ -40,6 +40,10 @@ const PeerScreens = () => {
         console.log("New access token saved to AsyncStorage");
       } catch (error) {
         console.log(error);
+        Alert.alert(
+          "Error",
+          "Failed to retrieve access token. Please try again later."
+        );
       }
     };
 

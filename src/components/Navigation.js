@@ -10,6 +10,8 @@ import { AuthContext } from "../context/AuthContext";
 import AppTab from "../navigation/TabNavigator";
 import SplashScreen from "../screens/SplashScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import SenderScreen from "../screens/SenderScreen";
+import AcceptPeerRequestScreen from "../screens/AcceptPeerRequestsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +35,11 @@ const Navigation = () => {
               options={{ headerShown: false }}
             />
             <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen name="Sender" component={SenderScreen} />
+            <Stack.Screen
+              name="Peer Requests"
+              component={AcceptPeerRequestScreen}
+            />
           </>
         ) : (
           <>

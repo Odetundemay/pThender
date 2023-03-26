@@ -27,13 +27,20 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [splashLoading, setSplashLoading] = useState(true);
 
-  const handleApiError = (error) => {
+  const handleApiError = async (error) => {
     console.error(error);
 
+    const { response, request } = error;
     let errorMessage = "An error occurred";
-    if (error.response) {
-      errorMessage = error.response.data.message || error.response.statusText;
-    } else if (error.request) {
+    if (response) {
+      const { data, status } = response;
+      errorMessage = data.message || response.statusText;
+
+      if (status === 401) {
+        console.log("Access token invalid or expired, logging out...");
+        await logout(); // Logout the user if access token is invalid or expired
+      }
+    } else if (request) {
       errorMessage = "No response from server, please try again later.";
     }
     Alert.alert(errorMessage);
@@ -84,18 +91,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    setIsLoading(true);
-
-    const refreshToken = userInfo.refresh;
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${refreshToken}`,
-    };
-    const data = { refresh: refreshToken };
-
     try {
+      const refreshToken = userInfo.refresh;
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${refreshToken}`,
+      };
+      const data = { refresh: refreshToken };
+
+      // Remove session from server
       await api.post("/logout/", data, { headers });
-      await AsyncStorage.removeItem("userInfo");
+
+      // Remove tokens and user info from AsyncStorage
+      await Promise.all([
+        AsyncStorage.removeItem("access"),
+        AsyncStorage.removeItem("refresh"),
+        AsyncStorage.removeItem("userInfo"),
+      ]);
+
+      // Update user info state
       setUserInfo({});
     } catch (error) {
       handleApiError(error);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PeerScreens from "../screens/PeerScreens";
 import ProgressScreen from "../screens/ProgressScreen";
@@ -11,10 +11,24 @@ import {
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { AuthContext } from "../context/AuthContext";
 
 const Tab = createBottomTabNavigator();
 
 const AppTab = ({ navigation }) => {
+  const { userInfo, isLoading, logout } = useContext(AuthContext);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Call the logout function when the user logs out
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await logout();
+    setIsLoggingOut(false);
+    // setIsLoading(false);
+    // Redirect the user to the login screen or home screen
+    // navigation.navigate("Thender", { screen: "LogIn" });
+  };
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -140,12 +154,14 @@ const AppTab = ({ navigation }) => {
                   onPress={() =>
                     Alert.alert("Options", "", [
                       {
-                        text: "Settings",
-                        onPress: () => navigation.navigate("Settings"),
+                        text: "Peer Requests",
+                        onPress: () => navigation.navigate("Peer Requests"),
                       },
                       {
                         text: "Exit",
-                        onPress: () => console.log("Exit pressed"),
+                        onPress: () => {
+                          handleLogout();
+                        },
                       },
                     ])
                   }

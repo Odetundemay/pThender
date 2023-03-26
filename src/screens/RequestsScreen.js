@@ -80,7 +80,6 @@ const RequestsScreen = () => {
 
       <Text style={{ fontSize: 18 }}>{item.user.username}</Text>
       <TouchableOpacity
-        onPress={() => handleSend(item.id)}
         style={{
           paddingVertical: 5,
           paddingHorizontal: 15,
@@ -89,7 +88,7 @@ const RequestsScreen = () => {
           borderColor: "red",
         }}
       >
-        <Text>Cancel</Text>
+        <Text>Pending</Text>
       </TouchableOpacity>
     </View>
   );
