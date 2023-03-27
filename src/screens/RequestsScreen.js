@@ -97,17 +97,19 @@ const RequestsScreen = () => {
     <View style={{ flex: 1, backgroundColor: "white" }}>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
+      ) : data.length > 0 ? (
         <FlatList
           data={data}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
         />
+      ) : (
+        <Text style={{ fontSize: 18, textAlign: "center", marginTop: 20 }}>
+          No pending sent requests
+        </Text>
       )}
     </View>
   );
 };
 
 export default RequestsScreen;
-
-const styles = StyleSheet.create({});

@@ -2,124 +2,135 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
+  StyleSheet,
   FlatList,
   Alert,
-  ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as DocumentPicker from "expo-document-picker";
+import * as Crypto from "expo-crypto";
+import * as FileSystem from "expo-file-system";
 
 const PeerScreens = () => {
-  const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState([]);
   const [access, setAccess] = useState(null);
+  const [peers, setPeers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getAccessToken = async () => {
-      try {
-        const refresh = await AsyncStorage.getItem("refresh");
-        console.log("Refresh token retrieved successfully:", refresh);
-
-        // Get new access token from the server using refresh token
-        const response = await axios.post(
-          "https://thender.onrender.com/token/refresh/",
-          {
-            refresh,
-          }
-        );
-        const { access } = response.data;
-        console.log("New access token obtained:", access);
-        setAccess(access);
-
-        // Save new access token to AsyncStorage
-        await AsyncStorage.setItem("access", access);
-        console.log("New access token saved to AsyncStorage");
-      } catch (error) {
-        console.log(error);
-        Alert.alert(
-          "Error",
-          "Failed to retrieve access token. Please try again later."
-        );
-      }
-    };
-
     getAccessToken();
   }, []);
 
-  const handleSearch = async () => {
-    if (!query) {
-      Alert.alert("Please enter a username");
-      return;
-    }
-
-    const url = `https://thender.onrender.com/search/?q=${query}`;
-
+  const getAccessToken = async () => {
     try {
-      setLoading(true);
+      const refresh = await AsyncStorage.getItem("refresh");
+      console.log("Refresh token retrieved successfully:", refresh);
 
-      const headers = {
-        Authorization: `Bearer ${access}`,
-        "Content-Type": "application/json",
-      };
+      // Get new access token from the server using refresh token
+      const response = await axios.post(
+        "https://thender.onrender.com/token/refresh/",
+        {
+          refresh,
+        }
+      );
+      const { access } = response.data;
+      console.log("New access token obtained:", access);
 
-      const response2 = await axios.get(url, { headers });
-      console.log("Search results:", response2.data);
-
-      if (response2.data.results.length === 0) {
-        Alert.alert("No available username. Please try again.");
-        setLoading(false);
+      // Save new access token to AsyncStorage
+      if (access) {
+        await AsyncStorage.setItem("access", access);
+        console.log("New access token saved to AsyncStorage");
+        setAccess(access);
       } else {
-        setResults(response2.data.results);
-        setLoading(false);
+        console.log("Failed to retrieve new access token from server");
       }
     } catch (error) {
       console.log(error);
+      Alert.alert(
+        "Error",
+        "Failed to retrieve access token. Please try again later."
+      );
+    }
+  };
+
+  const fetchPeers = async () => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${access}`,
+      },
+    };
+
+    try {
+      const response = await axios.get(
+        "https://thender.onrender.com/peer/all/",
+        config
+      );
+      console.log("Response data:", response.data);
+      setPeers(response.data.results);
+      setLoading(false);
+    } catch (error) {
+      console.log("Error fetching peers:", error);
       setLoading(false);
     }
   };
 
-  const handleSend = async (id) => {
-    const headers = {
-      Authorization: `Bearer ${access}`,
-      "Content-Type": "application/json",
-    };
-
-    const data = {
-      user: id,
-    };
-
-    axios
-      .post("https://thender.onrender.com/peer/request/", data, { headers })
-      .then((response) => {
-        console.log(response.data);
-        // handle success
-      })
-      .catch((error) => {
-        // console.error(error.response.data);
-        const errorMessage = error.response.data.non_field_errors
-          ? error.response.data.non_field_errors
-          : "An error occurred";
-        Alert.alert("Error", JSON.stringify(errorMessage));
-        // handle error
-      });
-  };
-
   const defaultAvatar = require("../assets/defaultavatar.jpeg");
 
+  const sendTransmission = async (receiverId) => {
+    try {
+      if (!receiverId) {
+        throw new Error("Receiver ID is required");
+      }
+
+      const file = await DocumentPicker.getDocumentAsync();
+      console.log("File:", file);
+      console.log("File_location", file.uri);
+      const fileData = await FileSystem.readAsStringAsync(file.uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const fileHash = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        fileData
+      );
+      console.log("File hash:", fileHash);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${access}`,
+        },
+      };
+      const payload = {
+        receiver: receiverId,
+        file_name: file.name,
+        file_location: file.uri,
+        file_hash: fileHash,
+        total_size: file.size,
+      };
+      const response = await axios.post(
+        "https://thender.onrender.com/transmission/add/",
+        payload,
+        config
+      );
+      console.log("Transmission created:", response.data);
+      Alert.alert("Success", "Transmission sent successfully");
+    } catch (error) {
+      console.log(error.response.data);
+      console.log("Error creating transmission:", error);
+      Alert.alert(
+        "Error",
+        "Failed to send transmission. Please try again later."
+      );
+    }
+  };
+  useEffect(() => {
+    if (access) {
+      fetchPeers();
+    }
+  }, [access]);
+
   const renderItem = ({ item }) => (
-    <View
-      style={{
-        // padding: 10,
-        margin: 10,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
+    <View style={styles.item}>
       <Image
         source={item.profile_picture || defaultAvatar}
         resizeMode="contain"
@@ -129,52 +140,49 @@ const PeerScreens = () => {
           borderRadius: 25, // half of 50
         }}
       />
-
-      <Text style={{ fontSize: 18 }}>{item.username}</Text>
-      <TouchableOpacity
-        onPress={() => handleSend(item.id)}
-        style={{
-          paddingVertical: 5,
-          paddingHorizontal: 15,
-          borderWidth: 1,
-          borderRadius: 10,
-          borderColor: "blue",
-        }}
-      >
-        <Text>Send</Text>
+      <Text style={styles.itemText}>{item.username}</Text>
+      <TouchableOpacity onPress={() => sendTransmission(item.id)}>
+        <Text>Send transmission</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <TextInput
-        placeholder="Search for user"
-        value={query}
-        style={{ padding: 10, borderColor: "black", borderWidth: 1 }}
-        onChangeText={(text) => setQuery(text)}
-        autoCapitalize="none"
-      />
-      <TouchableOpacity
-        onPress={handleSearch}
-        style={{ backgroundColor: "blue", padding: 10, marginTop: 10 }}
-      >
-        <Text style={{ color: "white", textAlign: "center" }}>Search</Text>
-      </TouchableOpacity>
+    <View style={styles.container}>
       {loading ? (
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <ActivityIndicator size="large" color="blue" />
-        </View>
-      ) : (
+        <Text>Loading...</Text>
+      ) : peers.length > 0 ? (
         <FlatList
-          data={results}
+          data={peers}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          style={{ marginTop: 20 }}
         />
+      ) : (
+        <Text>No available peers</Text>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 10,
+  },
+  item: {
+    padding: 20,
+    backgroundColor: "#f1f1f1",
+    borderRadius: 5,
+    marginVertical: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  itemText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+});
 
 export default PeerScreens;
