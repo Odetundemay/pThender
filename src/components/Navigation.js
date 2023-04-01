@@ -1,11 +1,8 @@
-import { View, Text } from "react-native";
-import { useContext } from "react";
-import React from "react";
+import React, { useContext } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import SignUpScreen from "../screens/SignUpScreen";
 import LogInScreen from "../screens/LogInScreen";
-import PeerScreens from "../screens/PeerScreens";
 import { AuthContext } from "../context/AuthContext";
 import AppTab from "../navigation/TabNavigator";
 import SplashScreen from "../screens/SplashScreen";
