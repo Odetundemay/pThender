@@ -60,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       const { data } = response;
       await AsyncStorage.setItem("userInfo", JSON.stringify(data));
       setUserInfo(data);
+      Alert.alert("Success", "You have successfully signed up!");
     } catch (error) {
       handleApiError(error);
     } finally {

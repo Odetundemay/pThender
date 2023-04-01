@@ -1,5 +1,4 @@
 import {
-  StyleSheet,
   Text,
   View,
   FlatList,
@@ -31,6 +30,7 @@ const RequestsScreen = () => {
       );
       // Set the fetched data to state and save to AsyncStorage
       setData(response.data.results);
+      console.log("results", +response.data.results);
       await AsyncStorage.setItem(
         "pendingRequests",
         JSON.stringify(response.data.results)

@@ -9,12 +9,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
-import {
-  Feather,
-  SimpleLineIcons,
-  AntDesign,
-  Ionicons,
-} from "@expo/vector-icons";
+import { Feather, SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
 import { AuthContext } from "../context/AuthContext";
 import Spinner from "react-native-loading-spinner-overlay/lib";

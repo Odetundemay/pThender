@@ -123,6 +123,8 @@ const PeerScreens = () => {
       );
     }
   };
+
+  
   useEffect(() => {
     if (access) {
       fetchPeers();
