@@ -104,9 +104,17 @@ const RequestsScreen = () => {
           keyExtractor={(item) => item.id}
         />
       ) : (
-        <Text style={{ fontSize: 18, textAlign: "center", marginTop: 20 }}>
-          No pending sent requests
-        </Text>
+        <View style={{ alignContent: "center" }}>
+          <Text
+            style={{
+              fontSize: 20,
+              textAlign: "center",
+              marginTop: 20,
+            }}
+          >
+            No pending sent requests
+          </Text>
+        </View>
       )}
     </View>
   );

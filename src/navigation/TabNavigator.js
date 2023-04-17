@@ -16,6 +16,7 @@ import { AuthContext } from "../context/AuthContext";
 import SearchScreen from "../screens/SearchScreen";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FileRequests from "../screens/FileRequests";
 
 const Tab = createBottomTabNavigator();
 
@@ -297,6 +298,58 @@ const AppTab = ({ navigation }) => {
                   fontSize: 30,
                   color: "white",
                   marginLeft: 15,
+                }}
+              >
+                Thender
+              </Text>
+            );
+          },
+          headerTitle: "",
+        }}
+      />
+      <Tab.Screen
+        name="File Requests"
+        component={FileRequests}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="family-restroom" size={size} color={color} />
+          ),
+          headerRight: () => {
+            return (
+              <View
+                style={{
+                  width: 100,
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                  marginBottom: 10,
+                }}
+              >
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("Search");
+                  }}
+                >
+                  <Ionicons name="search-sharp" size={28} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <SimpleLineIcons
+                    name="options-vertical"
+                    size={24}
+                    color="white"
+                  />
+                </TouchableOpacity>
+              </View>
+            );
+          },
+          headerLeft: () => {
+            return (
+              <Text
+                style={{
+                  fontSize: 30,
+                  color: "white",
+                  marginLeft: 15,
+                  fontWeight: "bold",
                 }}
               >
                 Thender

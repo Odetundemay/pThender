@@ -1,8 +1,10 @@
 import axios from "axios";
 import React, { createContext, useState, useEffect } from "react";
-import { Alert } from "react-native";
+import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { BASE_URL } from "../config";
+import CustomModal from "../components/CustomModal";
+import SucessCustomModal from "../components/SucessCustomModal";
 
 export const AuthContext = createContext();
 
@@ -26,24 +28,22 @@ export const AuthProvider = ({ children }) => {
   const [userInfo, setUserInfo] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [splashLoading, setSplashLoading] = useState(true);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorModalTitle, setErrorModalTitle] = useState("");
+  const [errorModalMessage, setErrorModalMessage] = useState("");
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleApiError = async (error) => {
-    console.error(error);
-
-    const { response, request } = error;
+  const handleApiError = (error) => {
     let errorMessage = "An error occurred";
-    if (response) {
-      const { data, status } = response;
-      errorMessage = data.message || response.statusText;
-
-      if (status === 401) {
-        console.log("Access token invalid or expired, logging out...");
-        await logout(); // Logout the user if access token is invalid or expired
+    if (error.response) {
+      const { data } = error.response;
+      if (data.non_field_errors && data.non_field_errors.length > 0) {
+        errorMessage = data.non_field_errors[0];
       }
-    } else if (request) {
-      errorMessage = "No response from server, please try again later.";
     }
-    Alert.alert(errorMessage);
+    setErrorModalMessage(errorMessage);
+    setErrorModalVisible(true);
   };
 
   const register = async (username, email, first_name, last_name, password) => {
@@ -60,7 +60,8 @@ export const AuthProvider = ({ children }) => {
       const { data } = response;
       await AsyncStorage.setItem("userInfo", JSON.stringify(data));
       setUserInfo(data);
-      Alert.alert("Success", "You have successfully signed up!");
+      setSuccessMessage("You have successfully signed up!");
+      setSuccessModalVisible(true);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -75,6 +76,8 @@ export const AuthProvider = ({ children }) => {
         username,
         password,
       });
+      // if login is successful, set successModalVisible to true
+      // setSuccessModalVisible(true);
 
       const { data } = response;
       await AsyncStorage.multiSet([
@@ -85,6 +88,7 @@ export const AuthProvider = ({ children }) => {
 
       setUserInfo(data);
     } catch (error) {
+      console.log("Login error: " + error.data);
       handleApiError(error);
     } finally {
       setIsLoading(false);
@@ -138,11 +142,30 @@ export const AuthProvider = ({ children }) => {
     isLoggedIn();
   }, []);
 
+  const closeModal = () => {
+    setErrorModalVisible(false);
+    setSuccessModalVisible(false);
+  };
+
   return (
-    <AuthContext.Provider
-      value={{ isLoading, splashLoading, userInfo, register, login, logout }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <>
+      <AuthContext.Provider
+        value={{ isLoading, splashLoading, userInfo, register, login, logout }}
+      >
+        {children}
+      </AuthContext.Provider>
+      <CustomModal
+        visible={errorModalVisible}
+        title={errorModalTitle}
+        message={errorModalMessage}
+        onClose={closeModal}
+      />
+      <SucessCustomModal
+        visible={successModalVisible}
+        title="Success"
+        message={successMessage}
+        onClose={closeModal}
+      />
+    </>
   );
 };

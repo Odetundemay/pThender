@@ -13,12 +13,25 @@ import { Feather, SimpleLineIcons, Ionicons } from "@expo/vector-icons";
 import CustomButton from "../components/CustomButton";
 import { AuthContext } from "../context/AuthContext";
 import Spinner from "react-native-loading-spinner-overlay/lib";
+import { useNavigation } from "@react-navigation/native";
 
-const LogInScreen = ({ navigation }) => {
+const LogInScreen = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const { isLoading, login } = useContext(AuthContext);
+
+  const navigation = useNavigation();
+
+  const handleLogIn = () => {
+    if (username === "" || password === "") {
+      // If any input field is empty, show an error message to the user
+      Alert.alert("Error", "Please fill all the input fields.");
+    } else {
+      // Otherwise, call the login function to perform log in
+      login(username, password);
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,7 +61,7 @@ const LogInScreen = ({ navigation }) => {
               <Feather name="wifi-off" size={24} color="#0011FF" />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.replace("SignUp")}>
+          <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
             <View
               style={{
                 width: 100,
@@ -125,13 +138,7 @@ const LogInScreen = ({ navigation }) => {
           secureTextEntry={true}
         />
       </View>
-      <CustomButton
-        title="Log In"
-        color="blue"
-        onPress={() => {
-          login(username, password);
-        }}
-      />
+      <CustomButton title="Log In" color="blue" onPress={handleLogIn} />
     </KeyboardAvoidingView>
   );
 };

@@ -8,6 +8,7 @@ import {
   TextInput,
   StyleSheet,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
 import {
   Feather,
@@ -18,6 +19,7 @@ import {
 import CustomButton from "../components/CustomButton";
 import { AuthContext } from "../context/AuthContext";
 import Spinner from "react-native-loading-spinner-overlay/lib";
+import { useNavigation } from "@react-navigation/native";
 
 const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -48,13 +50,25 @@ const SignUpScreen = ({ navigation }) => {
   };
 
   const handleSignUp = () => {
-    register(username, email, first_name, last_name, password);
+    if (
+      username === "" ||
+      first_name === "" ||
+      last_name === "" ||
+      email === "" ||
+      password === ""
+    ) {
+      // If any input field is empty, show an error message to the user
+      Alert.alert("Error", "Please fill all the input fields.");
+    } else {
+      // Otherwise, call the register function to perform SignUp
+      register(username, email, first_name, last_name, password);
+    }
   };
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      // headerShown: false,
       title: "",
+      headerLeft: null,
       headerRight: () => (
         <View
           style={{
@@ -79,11 +93,10 @@ const SignUpScreen = ({ navigation }) => {
               <Feather name="wifi-off" size={24} color="#0011FF" />
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.replace("LogIn")}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <View
               style={{
                 width: 100,
-                // height: 25,
                 borderRadius: 16,
                 borderColor: "#0011FF",
                 borderWidth: 2,
@@ -96,7 +109,6 @@ const SignUpScreen = ({ navigation }) => {
                   color: "#0011FF",
                   textAlign: "center",
                   fontSize: 18,
-                  // fontFamily: "comfortaa-bold",
                 }}
               >
                 Log In
@@ -106,7 +118,7 @@ const SignUpScreen = ({ navigation }) => {
         </View>
       ),
     });
-  }, []);
+  }, [navigation]);
 
   const keyboardVerticalOffset = Platform.OS === "ios" ? 100 : -100;
 
